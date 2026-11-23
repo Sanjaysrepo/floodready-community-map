@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+
   <meta name="viewport"
         content="width=device-width, initial-scale=1.0,
                  maximum-scale=1.0, user-scalable=no">
@@ -19,8 +20,10 @@
 
     body {
       overflow: hidden;
+      font-family: Arial, sans-serif;
     }
 
+    /* Existing zoom and recenter controls */
     .map-controls {
       position: fixed;
       right: 16px;
@@ -31,7 +34,8 @@
       z-index: 1000;
     }
 
-    .map-controls button {
+    .map-controls button,
+    .layers-toggle {
       width: 46px;
       height: 46px;
       border: 1px solid #e5e7eb;
@@ -45,7 +49,8 @@
       touch-action: manipulation;
     }
 
-    .map-controls button:active {
+    .map-controls button:active,
+    .layers-toggle:active {
       background: #f1f5f9;
     }
 
@@ -53,18 +58,206 @@
       font-size: 24px;
       color: #1769aa;
     }
+
+    /* Collapsible map layers */
+    .layers-container {
+      position: fixed;
+      left: 16px;
+      bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .layers-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1769aa;
+    }
+
+    .layers-panel {
+      display: none;
+      width: min(270px, calc(100vw - 110px));
+      max-height: min(420px, 65dvh);
+      overflow-y: auto;
+      box-sizing: border-box;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+      padding: 16px;
+    }
+
+    .layers-panel.open {
+      display: block;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #263238;
+    }
+
+    .close-button {
+      background: transparent;
+      border: none;
+      font-size: 22px;
+      color: #64748b;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    .panel-description {
+      font-size: 12px;
+      line-height: 1.5;
+      color: #64748b;
+      margin: 0 0 12px;
+    }
+
+    .layer-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 0;
+      border-bottom: 1px solid #edf0f2;
+    }
+
+    .layer-item:last-of-type {
+      border-bottom: none;
+    }
+
+    .layer-icon {
+      font-size: 20px;
+      width: 26px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .layer-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .layer-status {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 3px;
+    }
+
+    .panel-footer {
+      font-size: 11px;
+      line-height: 1.5;
+      color: #64748b;
+      margin-top: 12px;
+    }
   </style>
 </head>
 
 <body>
+
+  <!-- Google Map -->
   <div id="map"></div>
 
+  <!-- Existing map controls -->
   <div class="map-controls">
     <button onclick="zoomIn()" aria-label="Zoom in">+</button>
+
     <button onclick="zoomOut()" aria-label="Zoom out">−</button>
+
     <button class="location"
             onclick="resetLocation()"
             aria-label="Return to school location">⌖</button>
+  </div>
+
+  <!-- Floating map layers -->
+  <div class="layers-container">
+
+    <div id="layersPanel"
+         class="layers-panel"
+         role="region"
+         aria-label="Explore Map Layers">
+
+      <div class="panel-header">
+        <h3 class="panel-title">Explore Map Layers</h3>
+
+        <button class="close-button"
+                onclick="toggleLayers(false)"
+                aria-label="Close map layers">×</button>
+      </div>
+
+      <p class="panel-description">
+        Explore important locations and information
+        around your community.
+      </p>
+
+      <div class="layer-item">
+        <span class="layer-icon">🏥</span>
+        <div>
+          <div class="layer-name">Nearby Hospitals</div>
+          <div class="layer-status">Coming soon</div>
+        </div>
+      </div>
+
+      <div class="layer-item">
+        <span class="layer-icon">🏠</span>
+        <div>
+          <div class="layer-name">Emergency Shelters</div>
+          <div class="layer-status">Coming soon</div>
+        </div>
+      </div>
+
+      <div class="layer-item">
+        <span class="layer-icon">📍</span>
+        <div>
+          <div class="layer-name">Community Landmarks</div>
+          <div class="layer-status">Coming soon</div>
+        </div>
+      </div>
+
+      <div class="layer-item">
+        <span class="layer-icon">🌊</span>
+        <div>
+          <div class="layer-name">Flood Risk Areas</div>
+          <div class="layer-status">Coming soon</div>
+        </div>
+      </div>
+
+      <div class="layer-item">
+        <span class="layer-icon">🚨</span>
+        <div>
+          <div class="layer-name">Emergency Services</div>
+          <div class="layer-status">Coming soon</div>
+        </div>
+      </div>
+
+      <div class="panel-footer">
+        Location information will be available
+        once verified data is integrated.
+      </div>
+    </div>
+
+    <button id="layersToggle"
+            class="layers-toggle"
+            onclick="toggleLayers()"
+            aria-label="Open map layers"
+            aria-expanded="false"
+            aria-controls="layersPanel"
+            title="Map layers">
+      ☷
+    </button>
+
   </div>
 
   <script>
@@ -97,11 +290,15 @@
     }
 
     function zoomIn() {
-      if (map) map.setZoom(map.getZoom() + 1);
+      if (map) {
+        map.setZoom(map.getZoom() + 1);
+      }
     }
 
     function zoomOut() {
-      if (map) map.setZoom(map.getZoom() - 1);
+      if (map) {
+        map.setZoom(map.getZoom() - 1);
+      }
     }
 
     function resetLocation() {
@@ -110,12 +307,37 @@
       map.panTo(school);
       map.setZoom(16);
     }
+
+    function toggleLayers(forceOpen) {
+      const panel = document.getElementById("layersPanel");
+      const button = document.getElementById("layersToggle");
+
+      const shouldOpen =
+        typeof forceOpen === "boolean"
+          ? forceOpen
+          : !panel.classList.contains("open");
+
+      panel.classList.toggle("open", shouldOpen);
+
+      button.setAttribute(
+        "aria-expanded",
+        String(shouldOpen)
+      );
+
+      button.setAttribute(
+        "aria-label",
+        shouldOpen ? "Close map layers" : "Open map layers"
+      );
+
+      button.textContent = shouldOpen ? "×" : "☷";
+    }
   </script>
 
-  <!-- Replace this with your EXISTING Google Maps API script -->
+  <!-- Keep your existing working Google Maps API key -->
   <script
     async
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAb3KGbjLBYeQPVPEFAxdwyGTxrB65x-7s&callback=initMap&loading=async">
   </script>
+
 </body>
 </html>
