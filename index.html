@@ -1,0 +1,50 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+  <title>FloodReady XR - Community Map</title>
+  <style>
+    html, body, #map {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body { overflow: hidden; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script>
+    function initMap() {
+      const school = {
+        lat: 1.865164,
+        lng: 103.028806
+      };
+
+      const map = new google.maps.Map(
+        document.getElementById("map"),
+        {
+          center: school,
+          zoom: 16,
+          mapTypeId: "roadmap",
+          disableDefaultUI: true,
+          gestureHandling: "greedy"
+        }
+      );
+
+      new google.maps.Marker({
+        position: school,
+        map: map,
+        title: "SK Seri Gading"
+      });
+    }
+  </script>
+
+  <!-- Google Maps API script will be added next -->
+</body>
+</html>
